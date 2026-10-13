@@ -1,0 +1,724 @@
+/* style.css — chrome around the paper.
+   The chrome follows desktop spreadsheet conventions: light gray bars,
+   plain system type in sentence case, white entry fields, a name box and
+   contents strip above the sheet. Green is reserved for the few things
+   that mean "active" (cursor, selected tab, the app tab). Monospace is
+   for cell content only — chrome is chrome. */
+
+:root {
+  --paper: #f7fafc;
+  --chrome: #f3f2f1;        /* bar fill */
+  --ribbon: #faf9f8;        /* ribbon strip, a notch lighter */
+  --chrome-2: #e1dfdd;      /* hover fill */
+  --chrome-3: #d2d0ce;      /* pressed fill */
+  --chrome-line: #d8d6d4;   /* hairlines between bars */
+  --chrome-edge: #c8c6c4;   /* field borders */
+  --text: #323130;
+  --text-dim: #605e5c;
+  --ink: #1c2733;
+  --accent: #217346;
+  --accent-soft: rgba(33, 115, 70, 0.18);
+  --ui: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
+        sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono",
+          "Fira Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  overflow: hidden;
+  background: var(--chrome);
+  font-family: var(--ui);
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* ---- Toolbar and status bar -------------------------------------------- */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  background: var(--chrome);
+  user-select: none;
+}
+
+/* Ribbon: a tab strip (File / Home) over a shallow strip of controls.
+   The selected tab is a real folder tab — bordered, fused to the strip
+   below by overlapping the row's rule. */
+
+.tabrow {
+  height: 34px;
+  border-bottom: 1px solid var(--chrome-line);
+}
+
+.ribbon-tabs {
+  display: flex;
+  align-self: stretch;
+  margin-left: 4px;
+}
+
+.ribbon-tabs button {
+  align-self: stretch;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 0;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.ribbon-tabs button:hover:not([aria-selected="true"]) {
+  background: var(--chrome-2);
+  color: var(--text);
+}
+
+.ribbon-tabs button[aria-selected="true"] {
+  background: var(--ribbon);
+  border-color: var(--chrome-line);
+  margin-bottom: -1px; /* cover the row's rule — tab and strip fuse */
+  color: var(--accent);
+}
+
+.ribbonbar {
+  height: 36px;
+  background: var(--ribbon);
+  border-bottom: 1px solid var(--chrome-line);
+}
+
+.ribbon-pane {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ribbon-pane[hidden] { display: none; }
+
+.rsep {
+  width: 1px;
+  align-self: stretch;
+  margin: 7px 7px;
+  background: var(--chrome-line);
+}
+
+/* Style buttons: the letter is the icon, set in a serif for the
+   classic toolbar look. */
+.rstyle {
+  min-width: 30px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 14.5px;
+  text-align: center;
+}
+
+/* One "switched on" look for every toggle in the chrome: pale green
+   wash, thin green ring, green content. */
+.rstyle[aria-pressed="true"],
+.find-toggle[aria-pressed="true"],
+.viewmode button[aria-pressed="true"],
+#btn-spell[aria-pressed="true"],
+.help-tabs button[aria-selected="true"] {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  color: var(--accent);
+}
+
+.rstyle[aria-pressed="true"]:hover,
+.find-toggle[aria-pressed="true"]:hover,
+.viewmode button[aria-pressed="true"]:hover,
+#btn-spell[aria-pressed="true"]:hover,
+.help-tabs button[aria-selected="true"]:hover {
+  background: rgba(33, 115, 70, 0.28);
+  color: var(--accent);
+}
+
+/* One bottom bar: sheet tabs on the left, status and controls on the
+   right — no stacked rails. */
+.bottombar {
+  height: 28px;
+  padding: 0;
+  gap: 10px;
+  border-top: 1px solid var(--chrome-line);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.bsep {
+  width: 1px;
+  align-self: stretch;
+  margin: 6px 0;
+  background: var(--chrome-line);
+}
+
+.spacer { flex: 1; }
+
+/* The app mark: just the icon, quiet, so it doesn't fight the tabs. */
+.brand {
+  display: flex;
+  align-items: center;
+  padding: 0 4px 0 2px;
+}
+
+.brand svg { display: block; }
+
+/* The file name sits right after the app tab, like a document title;
+   the .grid extension shows as a ghost so saves hold no surprises. */
+.filewrap {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 12px;
+  border: 1px solid var(--chrome-edge);
+  border-radius: 2px;
+}
+
+.filewrap:hover { background: #fff; }
+
+.filewrap:focus-within {
+  border-color: var(--text-dim);
+  background: #fff;
+}
+
+#filename {
+  width: 14ch;
+  padding: 3px 2px 3px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+}
+
+#filename:focus { outline: none; }
+
+.fileext {
+  padding-right: 8px;
+  color: var(--text-dim);
+  user-select: none;
+  pointer-events: none;
+}
+
+
+button {
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: default; /* desktop buttons, not links */
+}
+
+button:hover { background: var(--chrome-2); }
+button:active { background: var(--chrome-3); }
+
+button:focus-visible {
+  outline: 1px solid var(--text);
+  outline-offset: -1px;
+}
+
+/* ---- Name box and cell contents strip ----------------------------------- */
+
+.formulabar {
+  display: flex;
+  align-items: stretch;
+  height: 25px;
+  background: #fff;
+  border-bottom: 1px solid var(--chrome-edge);
+  font-size: 12px;
+  user-select: none;
+}
+
+.namebox {
+  display: flex;
+  align-items: center;
+  min-width: 96px;
+  padding: 0 10px;
+  border-right: 1px solid var(--chrome-line);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.fx {
+  display: flex;
+  align-items: center;
+  padding: 0 11px;
+  border-right: 1px solid var(--chrome-line);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+.cellbox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+/* ---- The sheet ----------------------------------------------------------- */
+
+main { position: relative; min-height: 0; }
+
+#grid {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--paper);
+  cursor: cell;
+}
+
+#grid:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent-soft);
+}
+
+/* ---- Sheet tabs ------------------------------------------------------------ */
+
+.sheet-tabs {
+  display: flex;
+  align-self: stretch;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sheet-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px 0 14px;
+  border-right: 1px solid var(--chrome-line);
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+}
+
+/* Hovering a tab previews becoming the active one: same white fill,
+   gray edge where the active tab's green one goes. */
+.sheet-tab:hover:not(.active) {
+  background: #fff;
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--chrome-3);
+}
+
+.sheet-tab.active {
+  background: #fff;
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+.sheet-tab .tab-close {
+  padding: 0 5px;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--text-dim);
+  opacity: 0;
+}
+
+.sheet-tab:hover .tab-close { opacity: 0.7; }
+.sheet-tab .tab-close:hover { opacity: 1; background: var(--chrome-3); }
+
+.sheet-tab:not(:hover) .tab-close { padding: 0 5px; }
+
+.tab-rename {
+  width: 10ch;
+  padding: 1px 4px;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.tab-rename:focus { outline: none; }
+
+#btn-add-sheet {
+  align-self: stretch;
+  padding: 0 12px;
+  border-radius: 0;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+/* ---- Status bar segments -------------------------------------------------- */
+
+#mode { min-width: 4ch; }
+
+#bold-flag {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.zoom {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  margin-left: 4px;
+  border-left: 1px solid var(--chrome-line);
+  padding: 0 4px;
+}
+
+.zoom button { padding: 0 9px; align-self: stretch; border-radius: 0; }
+
+#zoom-level {
+  display: inline-block;
+  min-width: 5ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+#btn-spell {
+  padding: 2px 10px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.ribbonbar #btn-help {
+  margin-right: 4px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* View switcher: infinite canvas vs A4 pages, Excel's bottom-right spot. */
+.viewmode {
+  display: flex;
+  gap: 1px;
+  padding: 1px;
+  border: 1px solid var(--chrome-edge);
+  border-radius: 2px;
+  background: #fff;
+}
+
+.viewmode button {
+  padding: 1px 9px;
+  font-size: 11px;
+  border-radius: 1px;
+  color: var(--text-dim);
+}
+
+/* ---- Find bar ---------------------------------------------------------------- */
+
+.find-bar {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 5px;
+  background: var(--chrome);
+  border: 1px solid var(--chrome-edge);
+  border-radius: 3px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16);
+}
+
+.find-bar[hidden] { display: none; }
+
+#find-input {
+  width: 18ch;
+  padding: 3px 7px;
+  border: 1px solid var(--chrome-edge);
+  border-radius: 2px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+}
+
+#find-input:focus { outline: none; border-color: var(--accent); }
+
+.find-count {
+  min-width: 8ch;
+  padding: 0 4px;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.find-bar button { padding: 3px 7px; font-size: 12px; }
+
+/* ---- Context menu ---------------------------------------------------------- */
+
+.menu {
+  position: fixed;
+  z-index: 20;
+  min-width: 150px;
+  padding: 4px 0;
+  border: 1px solid var(--chrome-edge);
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.menu[hidden] { display: none; }
+
+.menu button {
+  display: block;
+  width: 100%;
+  padding: 5px 16px;
+  border-radius: 0;
+  text-align: left;
+}
+
+.menu button:hover { background: var(--chrome-2); }
+
+.menu hr {
+  margin: 4px 0;
+  border: none;
+  border-top: 1px solid var(--chrome-line);
+}
+
+/* ---- File drop target ------------------------------------------------------ */
+
+.drop-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(243, 242, 241, 0.78);
+  pointer-events: none; /* the drop lands on the window, not the scrim */
+}
+
+.drop-scrim[hidden] { display: none; }
+
+/* While a picture is dragged, the hint hugs the top edge and the scrim
+   goes near-transparent: placement is the whole point, so the cells
+   under the pointer — where the picture will land — stay visible. */
+.drop-scrim.drop-image {
+  align-items: flex-start;
+  background: rgba(243, 242, 241, 0.3);
+}
+
+.drop-scrim.drop-image .drop-card {
+  margin-top: 16px;
+  padding: 12px 28px;
+  font-size: 14px;
+}
+
+.drop-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 38px 72px;
+  border: 2px dashed var(--accent);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+  font-size: 16px;
+  text-align: center;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+}
+
+.drop-card small { font-size: 12px; color: var(--text-dim); }
+
+/* ---- Help overlay --------------------------------------------------------- */
+
+.help-scrim {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(50, 49, 48, 0.4);
+  z-index: 10;
+}
+
+.help-scrim[hidden] { display: none; }
+
+.help-card {
+  width: 100%;
+  max-width: 880px;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  border: 1px solid var(--chrome-edge);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+  animation: help-in 120ms ease-out;
+}
+
+@keyframes help-in {
+  from { transform: translateY(6px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+.help-head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 9px 16px;
+  background: var(--chrome);
+  color: var(--text);
+  border-bottom: 1px solid var(--chrome-line);
+}
+
+.help-head h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Platform switcher: a small segmented control in the header. */
+.help-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--chrome-edge);
+  border-radius: 3px;
+  background: #fff;
+}
+
+.help-tabs button {
+  padding: 2px 10px;
+  font-size: 11px;
+  border-radius: 2px;
+  color: var(--text-dim);
+}
+
+.help-tabs button:hover { background: var(--chrome-2); color: var(--text); }
+
+.help-head button { font-size: 14px; line-height: 1; }
+
+.help-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 44px;
+  padding: 4px 28px 28px;
+}
+
+.help-section h3 {
+  margin: 22px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(28, 39, 51, 0.12);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.help-note {
+  margin: -2px 0 8px;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: rgba(28, 39, 51, 0.55);
+}
+
+/* One action per row: label on the left, keys ragged-right. */
+.help-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 4px 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.help-label { color: var(--ink); }
+
+.help-keys {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.key-sep,
+.key-alt {
+  font-size: 10px;
+  color: rgba(28, 39, 51, 0.4);
+}
+
+.key-alt { padding: 0 3px; }
+
+.key-act {
+  font-size: 11px;
+  font-style: italic;
+  color: rgba(28, 39, 51, 0.6);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 21px;
+  padding: 1px 5px;
+  border: 1px solid rgba(28, 39, 51, 0.3);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  background: #fff;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .help-body { grid-template-columns: 1fr; }
+  .help-section h3 { margin-top: 16px; }
+}
+
+@media (max-width: 640px) {
+  .ribbon-pane button { padding: 4px 6px; }
+  .brand { display: none; }
+  #filename { width: 12ch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .help-card { animation: none; }
+}
+
+/* ---- Printing --------------------------------------------------------------- */
+/* The app never prints — beforeprint renders each page to an image in
+   #print-pages, and only those go to paper. */
+
+#print-pages { display: none; }
+
+@page {
+  size: A4 portrait;
+  margin: 15mm;
+}
+
+@media print {
+  body {
+    display: block;
+    overflow: visible;
+    background: #fff;
+  }
+
+  body > *:not(#print-pages) { display: none !important; }
+
+  #print-pages { display: block; }
+
+  .print-page {
+    display: block;
+    width: 100%;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .print-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "grid-editor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A character-grid text editor — Excel, but every cell holds one character. Absolute positions, overwrite-only typing, infinite top-left-anchored canvas.",
+  "type": "module",
+  "scripts": {
+    "start": "serve -l 3000 .",
+    "test": "node test/run.mjs"
+  },
+  "devDependencies": {
+    "serve": "^14.2.3"
+  }
+}
